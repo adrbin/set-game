@@ -10,7 +10,9 @@ import UIKit
 
 class ViewController: UIViewController {
     let numberOfCardsToDraw = 3
+    let numberOfStartingCards = 6
     
+    @IBOutlet weak var cardTableView: CardTableView!
     private(set) lazy var game = newSetGame()
 
     override func viewDidLoad() {
@@ -26,15 +28,44 @@ class ViewController: UIViewController {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
     }
-
-    @IBOutlet private var cardButtons: [UIButton]!
-    @IBAction private func touchCard(_ sender: UIButton) {
-        if let cardIndex = cardButtons.index(of: sender) {
-            if let card = game.cardsOnTheTable[cardIndex] {
-                game.chooseCard(card)
+    
+    
+    @objc private func selectCard(byHandlingGestureRecognizedBy gesture: UITapGestureRecognizer) {
+        switch gesture.state {
+        case .ended:
+            if let cardView = gesture.view as? CardView {
+                if let cardIndex = cardTableView.cardViews.index(of: cardView) {
+                    if game.cardsOnTheTable.indices.contains(cardIndex) {
+                        let card = game.cardsOnTheTable[cardIndex]
+                        game.chooseCard(card)
+                        updateViewFromModel()
+                    }
+                }
             }
+        default:
+            break
         }
-        updateViewFromModel()
+    }
+    
+    func setCardsInCardTable() {
+        var maxCardIndex = 0
+        for i in 0..<game.cardsOnTheTable.count {
+            let card = game.cardsOnTheTable[i]
+            let isCardSelected = game.selectedCards.contains(card) && !game.hinted
+            let isCardHinted = game.selectedCards.contains(card) && game.hinted
+            if i >= cardTableView.cardViews.count {
+                let cardView = cardTableView.addCardView(color: card.color, number: card.number, shading: card.shading, shape: card.shape, selected: isCardSelected, hinted: isCardHinted)
+                let tap = UITapGestureRecognizer(target: self, action: #selector(selectCard(byHandlingGestureRecognizedBy:)))
+                cardView.addGestureRecognizer(tap)
+            } else {
+                cardTableView.setCardView(at: i, color: card.color, number: card.number, shading: card.shading, shape: card.shape, selected: isCardSelected, hinted: isCardHinted)
+            }
+            maxCardIndex = i
+        }
+        let removeCardViewIndex = maxCardIndex + 1
+        for _ in removeCardViewIndex..<cardTableView.cardViews.count {
+            cardTableView.removeCardView(at: removeCardViewIndex)
+        }
     }
     
     func updateViewFromModel() {
@@ -42,94 +73,50 @@ class ViewController: UIViewController {
         if game.cardsInTheDeck.isEmpty {
             dealCardsButton.setTitle("Take cards", for: UIControlState.normal)
         }
-        for index in cardButtons.indices {
-            let button = cardButtons[index]
-            if let card = game.cardsOnTheTable[index] {
-                button.backgroundColor = #colorLiteral(red: 0.9999960065, green: 1, blue: 1, alpha: 1)
-                button.layer.cornerRadius = 8.0
-                let attributedString = NSAttributedString(string: text(for: card), attributes: attributes(for: card))
-                button.setAttributedTitle(attributedString, for: UIControlState.normal)
-                if game.selectedCards.contains(card) {
-                    button.layer.borderWidth = 5.0
-                    if game.hinted {
-                        button.layer.borderColor = #colorLiteral(red: 0.9529411793, green: 0.6862745285, blue: 0.1333333403, alpha: 1).cgColor
-                    } else {
-                        button.layer.borderColor = #colorLiteral(red: 0, green: 0.5898008943, blue: 1, alpha: 1).cgColor
-                    }
-                } else {
-                    button.layer.borderWidth = 0.0
-                    button.layer.borderColor = nil
-                }
-            } else {
-                button.backgroundColor = #colorLiteral(red: 1, green: 1, blue: 1, alpha: 0)
-                button.setTitle(nil, for: UIControlState.normal)
-                button.setAttributedTitle(nil, for: UIControlState.normal)
-                button.layer.borderWidth = 0.0
-                button.layer.borderColor = nil
-            }
-        }
-        if game.cardsOnTheTable.filter({$0 != nil}).count - game.selectedCards.count <= 0 {
+        setCardsInCardTable()
+        if game.cardsOnTheTable.count - game.selectedCards.count <= 0 {
             let alert = UIAlertController(title: "You have won!", message: "You should be proud of yourself. Now you can just give me $1000 and shut up", preferredStyle: UIAlertControllerStyle.alert)
             alert.addAction(UIAlertAction(title: NSLocalizedString("OK", comment: "Default action"), style: .default, handler: nil))
             self.present(alert, animated: true, completion: {self.startNewGame()})
         }
     }
     
-    func text(for card: Card) -> String {
-        return String(repeating: shape(for: card), count: card.number.rawValue)
-    }
-    
-    func attributes(for card: Card) -> [NSAttributedStringKey: Any] {
-        var attributes = shading(for: card)
-        attributes[NSAttributedStringKey.font] = UIFont.systemFont(ofSize: 30.0)
-        let paragraphStyle = NSMutableParagraphStyle()
-        paragraphStyle.alignment = NSTextAlignment.center
-        attributes[NSAttributedStringKey.paragraphStyle] = paragraphStyle
-        return attributes
-    }
-    
-    func shape(for card: Card) -> String {
-        switch card.shape {
-        case .diamond:
-            return "✦"
-        case .oval:
-            return "⚫︎"
-        case .squiggle:
-            return "❤︎"
+    @IBAction func swipeDealCards(_ sender: UISwipeGestureRecognizer) {
+        switch sender.state {
+        case .ended:
+            dealCards()
+        default:
+            break
         }
     }
     
-    
-    func color(for card: Card) -> UIColor {
-        switch card.color {
-        case .green:
-            return #colorLiteral(red: 0.3411764801, green: 0.6235294342, blue: 0.1686274558, alpha: 1)
-        case .purple:
-            return #colorLiteral(red: 0.5818830132, green: 0.2156915367, blue: 1, alpha: 1)
-        case .red:
-            return #colorLiteral(red: 1, green: 0.1491314173, blue: 0, alpha: 1)
-        }
-    }
-    
-    func shading(for card: Card) -> [NSAttributedStringKey: Any] {
-        switch card.shading {
-        case .open:
-            return [NSAttributedStringKey.strokeColor: color(for: card), NSAttributedStringKey.strokeWidth: 5.0]
-        case .solid:
-            return [NSAttributedStringKey.foregroundColor: color(for: card)]
-        case .strip:
-            return [NSAttributedStringKey.strokeColor: color(for: card), NSAttributedStringKey.strokeWidth: -5.0, NSAttributedStringKey.foregroundColor: color(for: card).withAlphaComponent(0.30)]
-        }
-    }
     
     @IBOutlet weak var dealCardsButton: UIButton!
     @IBAction private func touchDealCards(_ sender: UIButton) {
-//        if game.cardsOnTheTable.filter({$0 != nil}).count < game.maxCardsOnTheTable {
-            game.dealCards(n: numberOfCardsToDraw)
-            updateViewFromModel()
-//        }
+            dealCards()
     }
     
+    func dealCards() {
+        game.dealCards(n: numberOfCardsToDraw)
+        updateViewFromModel()
+    }
+    
+    @IBAction func rotateShuffleCards(_ sender: UIRotationGestureRecognizer) {
+        switch sender.state {
+        case .ended:
+            var rotation = sender.rotation
+            if rotation < 0 {
+                rotation = -rotation
+            }
+            if rotation > CGFloat.pi / 3 {
+                game.shuffleCardsOnTheTable()
+                updateViewFromModel()
+
+            }
+        default:
+            break
+        }
+    }
     
     @IBOutlet weak var hintButton: UIButton!
     @IBAction func touchHint(_ sender: UIButton) {
@@ -144,8 +131,9 @@ class ViewController: UIViewController {
     @IBOutlet private weak var scoreLabel: UILabel!
     
     @IBOutlet weak var newGameButton: UIButton!
+    
     func newSetGame() -> SetGame {
-        return SetGame(numberOfStartingCards: cardButtons.count / 2, maxCardsOnTheTable: cardButtons.count, numberOfCardsToDraw: numberOfCardsToDraw)
+        return SetGame(numberOfStartingCards: numberOfStartingCards, numberOfCardsToDraw: numberOfCardsToDraw)
     }
     
     @IBAction private func touchNewGame(_ sender: UIButton) {

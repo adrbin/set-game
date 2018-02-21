@@ -14,6 +14,9 @@
 		241726B61FDEED9C00B07BFE /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 241726B41FDEED9C00B07BFE /* LaunchScreen.storyboard */; };
 		241726BF1FDEF4A100B07BFE /* SetGame.swift in Sources */ = {isa = PBXBuildFile; fileRef = 241726BE1FDEF4A100B07BFE /* SetGame.swift */; };
 		241726C11FDEF4C500B07BFE /* Card.swift in Sources */ = {isa = PBXBuildFile; fileRef = 241726C01FDEF4C500B07BFE /* Card.swift */; };
+		24BFEA97203B4BC800441BD2 /* CardTableView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24BFEA96203B4BC800441BD2 /* CardTableView.swift */; };
+		24BFEA99203B4BE500441BD2 /* CardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24BFEA98203B4BE500441BD2 /* CardView.swift */; };
+		24BFEA9B203B567400441BD2 /* Grid.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24BFEA9A203B567300441BD2 /* Grid.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -26,6 +29,9 @@
 		241726B71FDEED9C00B07BFE /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		241726BE1FDEF4A100B07BFE /* SetGame.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SetGame.swift; sourceTree = "<group>"; };
 		241726C01FDEF4C500B07BFE /* Card.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Card.swift; sourceTree = "<group>"; };
+		24BFEA96203B4BC800441BD2 /* CardTableView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardTableView.swift; sourceTree = "<group>"; };
+		24BFEA98203B4BE500441BD2 /* CardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardView.swift; sourceTree = "<group>"; };
+		24BFEA9A203B567300441BD2 /* Grid.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Grid.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -59,9 +65,12 @@
 			isa = PBXGroup;
 			children = (
 				241726BD1FDEEDB700B07BFE /* Supporting Files */,
-				241726AD1FDEED9C00B07BFE /* ViewController.swift */,
-				241726BE1FDEF4A100B07BFE /* SetGame.swift */,
 				241726C01FDEF4C500B07BFE /* Card.swift */,
+				241726BE1FDEF4A100B07BFE /* SetGame.swift */,
+				241726AD1FDEED9C00B07BFE /* ViewController.swift */,
+				24BFEA96203B4BC800441BD2 /* CardTableView.swift */,
+				24BFEA98203B4BE500441BD2 /* CardView.swift */,
+				24BFEA9A203B567300441BD2 /* Grid.swift */,
 				241726AF1FDEED9C00B07BFE /* Main.storyboard */,
 				241726B71FDEED9C00B07BFE /* Info.plist */,
 			);
@@ -152,7 +161,10 @@
 			files = (
 				241726AE1FDEED9C00B07BFE /* ViewController.swift in Sources */,
 				241726BF1FDEF4A100B07BFE /* SetGame.swift in Sources */,
+				24BFEA97203B4BC800441BD2 /* CardTableView.swift in Sources */,
 				241726AC1FDEED9C00B07BFE /* AppDelegate.swift in Sources */,
+				24BFEA99203B4BE500441BD2 /* CardView.swift in Sources */,
+				24BFEA9B203B567400441BD2 /* Grid.swift in Sources */,
 				241726C11FDEF4C500B07BFE /* Card.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

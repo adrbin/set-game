@@ -10,20 +10,16 @@ import Foundation
 
 class SetGame {
     private(set) var cardsInTheDeck = [Card]()
-    private(set) var cardsOnTheTable = [Card?]()
+    private(set) var cardsOnTheTable = [Card]()
     private(set) var cardsMatched = [Card]()
     private(set) var selectedCards = [Card]()
     private(set) var  hinted = false
     
     private(set) var score = 0
-    private(set) var maxCardsOnTheTable: Int
     private(set) var numberOfCardsToDraw: Int
     
     func chooseCard(_ card: Card) {
         if selectedCards.contains(card) && selectedCards.count < Card.Number.count { // card unselected
-//            if selectedCards.count >= CardNumber.count {
-//                return
-//            }
             selectedCards.remove(at: selectedCards.index(of: card)!)
             score -= 1
         } else {
@@ -36,21 +32,7 @@ class SetGame {
                     score -= 5
                 }
             case Card.Number.count:
-                //                if selectedCardsMatch {
-                //                    for selectedCard in selectedCards {
-                //                        let index = cardsOnTheTable.index(where: {$0 == selectedCard})!
-                //                        if cardsInTheDeck.count > 0 {
-                //                            cardsOnTheTable[index] = nil
-                //                        } else {
-                //                            cardsOnTheTable.remove(at: index)
-                //                            cardsOnTheTable.append(nil)
-                //                        }
-                //                    }
-                //                    dealCards(n: numberOfCardsToDraw)
-                //                }
-//                if selectedCardsMatch {
-                    dealCards(n: numberOfCardsToDraw)
-//                }
+                dealCards(n: numberOfCardsToDraw)
                 selectedCards = [card]
             default:
                 selectedCards.append(card)
@@ -59,7 +41,7 @@ class SetGame {
     }
     
     func findMatches() {
-        if let matches = findMatches(in: cardsOnTheTable.filter({$0 != nil}).map {$0!}) {
+        if let matches = findMatches(in: cardsOnTheTable) {
             hinted = true
             selectedCards = matches
         }
@@ -113,10 +95,17 @@ class SetGame {
         return (numbersAllTheSame || numbersAllDifferent) && (shapesAllTheSame || shapesAllDifferent) && (shadingsAllTheSame || shadingsAllDifferent) && (colorsAllTheSame || colorsAllDifferent)
     }
     
-    private func shuffleCards() {
+    private func shuffleCardsInTheDeck() {
         for index in cardsInTheDeck.indices {
             let randomIndex = index.arc4random
             cardsInTheDeck.swapAt(index, randomIndex)
+        }
+    }
+    
+    func shuffleCardsOnTheTable() {
+        for index in cardsOnTheTable.indices {
+            let randomIndex = index.arc4random
+            cardsOnTheTable.swapAt(index, randomIndex)
         }
     }
     
@@ -126,32 +115,25 @@ class SetGame {
                 for selectedCard in selectedCards {
                     let index = cardsOnTheTable.index(where: {$0 == selectedCard})!
                     if cardsInTheDeck.count > 0 {
-                        cardsOnTheTable[index] = nil
+                        cardsOnTheTable[index] = cardsInTheDeck.removeLast()
                     } else {
                         cardsOnTheTable.remove(at: index)
-                        cardsOnTheTable.append(nil)
                     }
                 }
                 hinted = false
             }
             selectedCards = []
         } else {
-            //            score -= 2
-        }
-        for _ in 0..<number {
-            if cardsInTheDeck.count > 0 {
-                let freeIndex = cardsOnTheTable.index(where: {$0 == nil})
-                if let index = freeIndex {
-                    cardsOnTheTable[index] = cardsInTheDeck.removeLast()
+            for _ in 0..<number {
+                if cardsInTheDeck.count > 0 {
+                    cardsOnTheTable.append(cardsInTheDeck.removeLast())
                 }
             }
         }
     }
     
-    init(numberOfStartingCards: Int, maxCardsOnTheTable: Int, numberOfCardsToDraw: Int) {
-        self.maxCardsOnTheTable = maxCardsOnTheTable
+    init(numberOfStartingCards: Int, numberOfCardsToDraw: Int) {
         self.numberOfCardsToDraw = numberOfCardsToDraw
-        cardsOnTheTable.append(contentsOf: [Card?](repeating: nil, count: maxCardsOnTheTable))
         for number in Card.Number.all {
             for shape in Card.Shape.all {
                 for shading in Card.Shading.all {
@@ -161,7 +143,7 @@ class SetGame {
                 }
             }
         }
-        shuffleCards()
+        shuffleCardsInTheDeck()
         dealCards(n: numberOfStartingCards)
         score = 0
     }

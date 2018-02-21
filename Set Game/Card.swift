@@ -8,8 +8,6 @@
 
 import Foundation
 
-
-
 struct Card: Hashable {
     let number: Number
     let shape: Shape
